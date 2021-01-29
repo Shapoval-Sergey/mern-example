@@ -1,17 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHttp } from "../hooks/http.hooks";
+import { useMessage } from "../hooks/message.hook";
 
 const AuthPage = () => {
-  const { loading, error, request } = useHttp();
+  const message = useMessage();
+  const { loading, request, error, clearError } = useHttp();
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const changeHandler = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    message(error);
+    clearError();
+  }, [error, message, clearError]);
+
+  const changeHandler = (event) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
   };
 
   const registerHandler = async () => {
     try {
       const data = await request("/api/auth/register", "POST", { ...form });
+      message(data.message);
+    } catch (e) {}
+  };
+
+  const loginHandler = async () => {
+    try {
+      const data = await request("/api/auth/login", "POST", { ...form });
+      message(data.message);
     } catch (e) {}
   };
 
@@ -51,6 +66,7 @@ const AuthPage = () => {
             <button
               className="btn yellow darken-4"
               style={{ marginRight: 10 }}
+              onClick={loginHandler}
               disabled={loading}
             >
               Войти
