@@ -63,8 +63,7 @@ router.post(
       }
 
       const { email, password } = req.body;
-      const user = User.findOne({ email });
-      console.log(user);
+      const user = await User.findOne({ email });
       if (!user) {
         return res.status(400).json({ message: "Пользователь не найден" });
       }
@@ -77,11 +76,11 @@ router.post(
           .json({ message: "Неверный пароль, попробуйте снова" });
       }
 
-      const token = jwt.sign({ userId: user._id }, config.get("jwtSecret"), {
+      const token = jwt.sign({ userId: user.id }, config.get("jwtSecret"), {
         expiresIn: "1h",
       });
 
-      return res.json({ token, userId: user._id });
+      return res.json({ token, userId: user.id });
     } catch (e) {
       res.status(500).json({ message: "Что-то пошло не так попробуйте снова" });
     }
